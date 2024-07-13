@@ -5,7 +5,15 @@ ignore-regex = "\\\\[fnrstv]"
 # ignore-words-list = ''
 
 [tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
 markers = ["online"]
+filterwarnings = [
+    "error",
+    '''ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated and scheduled for removal in a future version.*:DeprecationWarning''',
+]
 
 [tool.ruff]
 select = [
