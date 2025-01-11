@@ -328,25 +328,32 @@ class Cassette:
         """List of new HTTP interactions (request/response tuples)"""
         new_interactions = []
         for request, response in self.data:
-            if all(not requests_match(request, old_request, self._match_on)
-                   for old_request, _ in self._old_interactions):
+            if all(
+                not requests_match(request, old_request, self._match_on)
+                for old_request, _ in self._old_interactions
+            ):
                 new_interactions.append((request, response))
         return new_interactions
 
     def _as_dict(self):
-        requests = self.requests
-        responses = self.responses
-        if self.drop_unused_requests:
-            interactions = self._played_interactions + self._new_interactions()
-            requests = [request for request, _ in interactions]
-            responses = [response for _, response in interactions]
-        return {"requests": requests, "responses": responses}
+        return {"requests": self.requests, "responses": self.responses}
+
+    def _build_used_interactions_dict(self):
+        interactions = self._played_interactions + self._new_interactions()
+        cassete_dict = {
+            "requests": [request for request, _ in interactions],
+            "responses": [response for _, response in interactions],
+        }
+        return cassete_dict
 
     def _save(self, force=False):
-        if (len(self._played_interactions) < len(self._old_interactions)):
+        if self.drop_unused_requests and len(self._played_interactions) < len(self._old_interactions):
+            cassete_dict = self._build_used_interactions_dict()
             force = True
+        else:
+            cassete_dict = self._as_dict()
         if force or self.dirty:
-            self._persister.save_cassette(self._path, self._as_dict(), serializer=self._serializer)
+            self._persister.save_cassette(self._path, cassete_dict, serializer=self._serializer)
             self.dirty = False
 
     def _load(self):
