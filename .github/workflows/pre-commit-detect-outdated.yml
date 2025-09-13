@@ -16,9 +16,9 @@ permissions:
 jobs:
   pre_commit_detect_outdated:
     name: Detect outdated pre-commit hooks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
